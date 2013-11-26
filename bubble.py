@@ -1,12 +1,5 @@
 '''
 Author: Vinhthuy Phan, 2013
-
-Bubble plots are similar to scatter plot, with an additional dimension
-that is captured by the circular area of a data point.  Multiple categories
-can be captured using different colors.
-
-When to use: 3 dimensional data, where the third dimension is somewhat
-qualitative.
 '''
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +8,7 @@ import tsv
 import argparse
 import sys
 import math
+import time
 
 LEGEND_RATIO = 0.1
 MARGIN = 0.05
@@ -23,25 +17,13 @@ ALPHA = 0.6
 LEGEND_FONT_SIZE = "medium"
 LEGEND_TOP_PADDING, LEGEND_LEFT_PADDING = 0, 0
 FIG_SIZE = (8,6)
+LABEL_AXES = False
 
-X_var, Y_var, Z_var, Z_is_radius, Category_var, Group_var, Label_var = \
-   None, None, None, None, None, None, None
+X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None, None, None
+Z_transform, Z_transform_label = None, None
 
-# 1. Linear, 2. Power, 3. Log, 4. Exponential
-Z_transform = None
 
-def transform_select(t_type, t_var):
-   if t_type is None:
-      return lambda(x): x
-   if t_type == 1:
-      return lambda(x): t_var * x
-   if t_type == 2:
-      return lambda(x): x**t_var
-   if t_type == 3:
-      return lambda(x): math.log(x)/math.log(b)
-   if t_type == 4:
-      return lambda(x): t_var**x
-
+##-------------------------------------------------------------------
 # Maximally distinct colors
 # Ref: http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
 COLORS = [('#f3c300', 'Vivid Yellow'), ('#875692', 'Strong Purple'), ('#f38400', 'Vivid Orange'), ('#a1caf1', 'Very Light Blue'), ('#be0032', 'Vivid Red'), ('#c2b280', 'Grayish Yellow'), ('#848482', 'Medium Gray'), ('#008856', 'Vivid Green'), ('#e68fac', 'Strong Purplish Pink'), ('#0067a5', 'Strong Blue'), ('#f99379', 'Strong Yellowish Pink'), ('#604e97', 'Strong Violet'), ('#f6a600', 'Vivid Orange Yellow'), ('#b3446c', 'Strong Purplish Red'), ('#dcd300', 'Vivid Greenish Yellow'), ('#882d17', 'Strong Reddish Brown'), ('#27a64c', 'Vivid Yellowish Green'), ('#654522', 'Deep Yellowish Brown'), ('#e25822', 'Vivid Reddish Orange'), ('#2b3d26', 'Dark Olive Green')]
@@ -65,10 +47,7 @@ class Subplot:
       self.y.append(float(r[Y_var]))
       if Z_var is not None:
          self.options['s'].append( float(r[Z_var]) )
-         if Z_is_radius:
-            self.options['s'][-1] = np.pi * self.options['s'][-1]**2
          if Z_transform is not None:
-            print Z_transform
             self.options['s'][-1] = Z_transform( self.options['s'][-1] )
 
       if Category_var is not None:
@@ -82,6 +61,7 @@ class Subplot:
          else:
             color = COLORS[Categories.index(r[Category_var])][0]
          self.options['c'].append(color)
+
       if Label_var is not None:
          self.label.append(r[Label_var])
 
@@ -106,16 +86,6 @@ def check_for_column_names(data):
    check_column(Category_var,data)
    check_column(Group_var,data)
    check_column(Label_var,data)
-
-# def check_for_range(range):
-#    if range is not None:
-#       try:
-#          (a,b) = (float(i) for i in range.split(" "))
-#          return (a,b)
-#       except:
-#          print("Invalid range: %s.  Valid example: \"0 1\"" % range)
-#          sys.exit(0)
-#    return None
 
 ##-------------------------------------------------------------------
 def plot(input_file):
@@ -172,8 +142,13 @@ def plot(input_file):
    for i, axis in enumerate(figure.axes):
       if i%cols != 0:
          axis.set_yticklabels(axis.get_yticklabels(), visible=False)
+      elif LABEL_AXES:
+         axis.set_ylabel(Y_var)
       if i/cols != 0:
          axis.set_xticklabels(axis.get_xticklabels(), visible=False)
+      elif LABEL_AXES:
+         axis.set_xlabel(X_var)
+
       axis.set_xlim(*xlim)
       axis.set_ylim(*ylim)
 
@@ -190,55 +165,101 @@ def plot(input_file):
          labels.append(c)
       figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1, fontsize=LEGEND_FONT_SIZE)
 
-   plt.savefig("test.pdf")
+   # Save
+   t = time.localtime()
+   output = 'output_%s_%s_%s_%s_%s_%s.pdf' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+   print "Save output to %s" % output
+   plt.savefig(output)
    plt.show()
 
 ##----------------------------------------------------------------------------
+
+def select_transform(L):
+   def compose(fs):
+      return (lambda(x): compose(fs[1:])( fs[0](x) )) if len(fs) > 1 else fs[0]
+
+   def transform(key, val):
+      functions = dict(
+         add = lambda(x): val+x,
+         mul = lambda(x): val*x,
+         pow = lambda(x): x**val,
+         log = lambda(x): math.log(x)/math.log(val),
+         exp = lambda(x): val**x,
+      )
+      return functions.get(key)
+
+   def transform_rep(key, val):
+      functions = dict(
+         add = lambda(x): '%s+%s' % (val, x),
+         mul = lambda(x): '%s*(%s)' % (val, x),
+         pow = lambda(x): '(%s)^%s' % (x, val),
+         log = lambda(x): 'log_%s(%s)' % (val, x),
+         exp = lambda(x): '%s^(%s)' % (val, x),
+      )
+      return functions.get(key)
+
+   L2, L3 = [], []
+   for key, val in L:
+      try:
+         val = float(val)
+      except:
+         raise argparse.ArgumentTypeError("Transform value %s is not a float" % val)
+
+      f = transform(key, val)
+      if f is None:
+         raise argparse.ArgumentTypeError("%s is not a valid transform" % key)
+      else:
+         L2.append(f)
+      L3.append(transform_rep(key,val))
+
+   return compose(L2), compose(L3)
+
+##----------------------------------------------------------------------------
 if __name__ == '__main__':
-   parser = argparse.ArgumentParser()
-   parser.add_argument("input_file", help="comma-separated-values (csv) input file; columns are named in the header.")
-   parser.add_argument("X", help="name of column representing the X variable.")
-   parser.add_argument("Y", help="name of column representing the Y variable.")
-   parser.add_argument("Z", default=None, nargs='?', help="optional name of column representing a third variable. Values equated to areas of bubbles.")
-   parser.add_argument("--Z_is_radius", action="store_true", help="indicates that Z values are radii, not areas of bubbles.")
-   parser.add_argument("-c", help="optional name of column representing categories. Colors are assigned to categories automatically.")
-   parser.add_argument("-g", help="optional name of column representing groups. Each group is represented by a plot.")
-   parser.add_argument("-l", help="optional name of column representing data point labels.")
+   parser = argparse.ArgumentParser(description="Names of X, Y, Z, Category, Group, and Label must match with information specified in the header of the input file.")
+   parser.add_argument("input_file", metavar="data.csv", help="header must contain names of X, Y and optionally Z, Category, Group, and Label.")
+   parser.add_argument("X")
+   parser.add_argument("Y")
+   parser.add_argument("Z", default=None, nargs='?', help="optional, transformable, proportional to bubble areas.")
+   parser.add_argument("-c", metavar="Category")
+   parser.add_argument("-g", metavar="Group")
+   parser.add_argument("-l", metavar="Label")
+   parser.add_argument("-t", nargs=2, metavar=('transform', 'value'), action='append',
+      help="transform Z variable.  Transform is one of {add, mul, pow, log, exp}.  Value is a float.")
    parser.add_argument("--ranges", nargs=4, type=float, metavar=('xmin','xmax','ymin','ymax'))
-   parser.add_argument("--alpha", type=float, default=ALPHA, help="bubble transparency; between 0 and 1. Default: %s" % ALPHA)
-   parser.add_argument("--margin", type=float, default=MARGIN, help="plot margin; should be between 0 and 1. Default: %s." % MARGIN)
-   parser.add_argument("--legend_ratio", type=float, default=LEGEND_RATIO, help="number between 0 and 1, indicating the fraction of width the legend takes.  Default: %s" % LEGEND_RATIO)
-   parser.add_argument("--legend_top_padding", type=float, default=LEGEND_TOP_PADDING, help="Default: %s." % LEGEND_TOP_PADDING)
-   parser.add_argument("--legend_left_padding", type=float, default=LEGEND_LEFT_PADDING, help="Default: %s." % LEGEND_LEFT_PADDING)
-   parser.add_argument("--figsize", help='Width and height of figure in inches.  Example: "16,12".  Default: %s,%s.' % (FIG_SIZE[0], FIG_SIZE[1]))
+   parser.add_argument("--legend", type=float, nargs=3,
+      metavar=('p', 'left', 'top'),
+      help="p: figure portion given to legend; default is 0.1.  \
+            left: spacing between plot and legend; default: 0.  \
+            top: spacing between figure top & legend; default: 0.")
+   parser.add_argument("--label_axes", default=LABEL_AXES, action="store_true", help="Turn on axes labels.")
+   parser.add_argument("--figsize", type=float, nargs=2, metavar=('w', 'h'),
+      help='figure width and height in inches; default: %s %s.' % (FIG_SIZE[0], FIG_SIZE[1]))
+   parser.add_argument("--alpha", type=float, default=ALPHA, metavar='a',
+      help="bubble transparency; default: %s" % ALPHA)
+   parser.add_argument("--margin", type=float, default=MARGIN, metavar='m',
+      help="plot margin; default: %s." % MARGIN)
 
    args = parser.parse_args()
-   X_var, Y_var, Z_var, Z_is_radius, Category_var, Group_var, Label_var = \
-      args.X, args.Y, args.Z, args.Z_is_radius, args.c, args.g, args.l
+   X_var, Y_var, Z_var, Category_var, Group_var, Label_var = args.X, args.Y, args.Z, args.c, args.g, args.l
+
+   if args.t:
+      Z_transform, Z_transform_label = select_transform(args.t)
+   print Z_transform_label(Z_var)
+   LABEL_AXES = args.label_axes
+   ALPHA = args.alpha
+   if LABEL_AXES:
+      MARGIN *= 2
+   MARGIN = args.margin
 
    if args.ranges:
       XMIN, XMAX, YMIN, YMAX = args.ranges
 
-   # Z_transform = args.Z_transform
-   LEGEND_RATIO = args.legend_ratio
+   if args.legend:
+      LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING = args.legend
 
-   if 0 < args.alpha <= 1:
-      ALPHA = args.alpha
-   else:
-      print ("Invalid alpha.  Must be in (0, 1].")
-      sys.exit(0)
-   LEGEND_TOP_PADDING = args.legend_top_padding
-   LEGEND_LEFT_PADDING = args.legend_left_padding
-   MARGIN = args.margin
+   if args.figsize:
+      FIG_SIZE = args.figsize
 
-   if args.figsize is not None:
-      try:
-         w, h = (float(i) for i in args.figsize.split(","))
-         FIG_SIZE = (w, h)
-      except:
-         print("Invalid figure size %s.  Example --figsize 8,6" % args.figsize)
-         sys.exit(0)
-
-   print args
    plot( args.input_file )
 
