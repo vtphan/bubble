@@ -32,7 +32,7 @@ Require Python packages:
 usage: bubble.py [-h] [-c Category] [-g Group] [-l Label] [-t transform value]
                  [--ranges xmin xmax ymin ymax] [--legend p left top]
                  [--legend_bubble y spacing] [--label_axes] [--figsize w h]
-                 [--alpha a] [--margin m]
+                 [--alpha a] [--margin m] [--output {png,pdf}]
                  data.csv X Y [Z]
 
 Names of X, Y, Z, Category, Group, and Label must match with information
@@ -63,4 +63,5 @@ optional arguments:
   --figsize w h         figure width and height in inches; default: 8 6.
   --alpha a             bubble transparency; default: 0.6
   --margin m            plot margin; default: 0.05.
+  --output {png,pdf}    format of output file; default: png
 ```
