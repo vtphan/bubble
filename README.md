@@ -28,6 +28,12 @@ Require Python packages:
 ```
 <img src="output/ex3.png">
 
++ Add politics as a category.  Readjust legend.
+```
+python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes -c politics --legend_bubble 5 2 --legend 0.2 0 0
+```
+<img src="output/ex4.png">
+
 ============================================================================
 
 #### Usage

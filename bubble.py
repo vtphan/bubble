@@ -3,7 +3,6 @@ Author: Vinhthuy Phan, 2013
 '''
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import Rectangle, Circle, Line2D, gcf
 import tsv
 import argparse
 import sys
@@ -22,6 +21,7 @@ LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = 3, 2
 X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None, None, None
 Z_transform, Z_transform_label = None, lambda(x):x
 
+OUTPUT_FORMAT = 'png'
 
 ##-------------------------------------------------------------------
 # Maximally distinct colors
@@ -175,7 +175,7 @@ def plot(input_file):
          markers, labels = [], []
          for i, c in enumerate(Categories):
             color = COLORS[i][0]
-            markers.append(Line2D([],[],marker="o",alpha=ALPHA,linewidth=0,mfc=color,mec=color,ms=10))
+            markers.append(plt.Line2D([],[],marker="o",alpha=ALPHA,linewidth=0,mfc=color,mec=color,ms=10))
             labels.append(c)
          figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1, fontsize=LEGEND_FONT_SIZE)
 
@@ -185,7 +185,8 @@ def plot(input_file):
 
    # Save
    t = time.localtime()
-   output = 'output_%s_%s_%s_%s_%s_%s.pdf' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+   output = 'output_%s_%s_%s_%s_%s_%s.%s' % \
+      (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, OUTPUT_FORMAT)
    print "Save output to %s" % output
    plt.savefig(output)
    plt.show()
@@ -250,15 +251,16 @@ if __name__ == '__main__':
             left: spacing between plot and legend; default: 0.  \
             top: spacing between figure top & legend; default: 0.")
    parser.add_argument("--legend_bubble", type=float, nargs=2, metavar=('y', 'spacing'),
-      help="y: position of vertical placement of bubble. Default: 3.\
-            spacing: number of lines between annotations.")
+      help="y: position of vertical bubble placement; default: 3.  \
+            spacing: no. of lines between annotations; default: 2.")
    parser.add_argument("--label_axes", default=LABEL_AXES, action="store_true", help="Turn on axes labels.")
    parser.add_argument("--figsize", type=float, nargs=2, metavar=('w', 'h'),
       help='figure width and height in inches; default: %s %s.' % (FIG_SIZE[0], FIG_SIZE[1]))
    parser.add_argument("--alpha", type=float, default=ALPHA, metavar='a',
       help="bubble transparency; default: %s" % ALPHA)
    parser.add_argument("--margin", type=float, metavar='m', help="plot margin; default: %s." % MARGIN)
-
+   parser.add_argument("--output", choices=["png","pdf"], default=OUTPUT_FORMAT,
+      help="format of output file; default: %s" % OUTPUT_FORMAT, )
    args = parser.parse_args()
    X_var, Y_var, Z_var, Category_var, Group_var, Label_var = args.X, args.Y, args.Z, args.c, args.g, args.l
 
@@ -284,6 +286,8 @@ if __name__ == '__main__':
 
    if args.figsize:
       FIG_SIZE = args.figsize
+
+   OUTPUT_FORMAT = args.output
 
    plot( args.input_file )
 
