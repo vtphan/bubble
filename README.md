@@ -32,6 +32,7 @@ Require Python packages:
 ```
 python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes -c politics --legend_bubble 5 2 --legend 0.2 0 0
 ```
+Note: in additional color codes, the legend also displays the median-size bubble, and indicates if Z is transformed.
 <img src="output/ex4.png">
 
 ============================================================================
