@@ -15,14 +15,14 @@ Require Python packages:
 	python bubble.py crimeRatesByState2005.csv murder burglary
 ```
 
-+ Compare murder, burglary and population
++ Compare murder, burglary and population.  Transform population by a constant factor.
 ```
-	python bubble.py crimeRatesByState2005.csv murder burglary population
+	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001
 ```
 
-+ Transform population by a factor of .0001; readjust x/y ranges; turn on x/y labels
++ Readjust x/y ranges; turn on x/y labels
 ```
-	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300
+	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes
 ```
 
 ============================================================================
