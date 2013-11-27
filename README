@@ -11,23 +11,17 @@ Require Python packages:
 Examples:
 + Typical scatter plot:
 
-.. code-block:: python
-
 	python bubble.py crimeRatesByState2005.csv murder burglary
 
 
 + Compare murder, burglary and population
-
-.. code-block:: python
 
 	python bubble.py crimeRatesByState2005.csv murder burglary  population
 
 
 + Transform population by a factor of .0001 and readjust ranges for x and y 
 
-.. code-block:: python
-
-python bubble.py crimeRatesByState2005.csv murder burglary  population  -t mul .0001 --ranges 0 12 200 1300
+	python bubble.py crimeRatesByState2005.csv murder burglary  population  -t mul .0001 --ranges 0 12 200 1300
 
 
 ============================================================================
