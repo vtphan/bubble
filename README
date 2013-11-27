@@ -16,12 +16,12 @@ Examples:
 
 + Compare murder, burglary and population
 
-	python bubble.py crimeRatesByState2005.csv murder burglary  population
+	python bubble.py crimeRatesByState2005.csv murder burglary population
 
 
 + Transform population by a factor of .0001 and readjust ranges for x and y 
 
-	python bubble.py crimeRatesByState2005.csv murder burglary  population  -t mul .0001 --ranges 0 12 200 1300
+	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300
 
 
 ============================================================================
