@@ -41,6 +41,12 @@ python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .00
 ```
 <img src="output/ex5.png">
 
++ Label data point with state names.  Resize figure to increase readability.
+```
+python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 -l state --ranges 0 12 200 1300 --label_axes -g politics --legend_bubble 5 2 --legend 0.2 0 0
+```
+<img src="output/ex6.png">
+
 ============================================================================
 
 #### Usage
