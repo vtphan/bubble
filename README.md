@@ -14,19 +14,19 @@ Require Python packages:
 ```
 	python bubble.py crimeRatesByState2005.csv murder burglary
 ```
-<img src="output/ex1.png" height="300px">
+<img src="output/ex1.png">
 
 + Compare murder, burglary and population.  Transform population by a constant factor.
 ```
 	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001
 ```
-<img src="output/ex2.png" height="300px">
+<img src="output/ex2.png">
 
 + Readjust x/y ranges; turn on x/y labels
 ```
 	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes
 ```
-<img src="output/ex3.png" height="300px">
+<img src="output/ex3.png">
 
 ============================================================================
 
