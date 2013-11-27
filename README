@@ -2,29 +2,33 @@ bubble.py facilitates plotting bubble plots, which are useful when you
 want to contrast two variables (X and Y) against a third variable (Z).
 
 Require Python packages:
-	matplotlib
-	numpy
-	tsv
+- `matplotlib`
+- `numpy`
+- `tsv`
 
 ============================================================================
 
-Examples:
+#### Examples
+
 + Typical scatter plot:
-
+```
 	python bubble.py crimeRatesByState2005.csv murder burglary
-
+```
 
 + Compare murder, burglary and population
-
+```
 	python bubble.py crimeRatesByState2005.csv murder burglary population
+```
 
-
-+ Transform population by a factor of .0001 and readjust ranges for x and y 
-
++ Transform population by a factor of .0001; readjust x/y ranges; turn on x/y labels
+```
 	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300
-
+```
 
 ============================================================================
+
+#### Usage
+
 usage: bubble.py [-h] [-c Category] [-g Group] [-l Label] [-t transform value]
                  [--ranges xmin xmax ymin ymax] [--legend p left top]
                  [--legend_bubble y spacing] [--label_axes] [--figsize w h]
