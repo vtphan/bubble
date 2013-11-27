@@ -10,7 +10,7 @@ import math
 import time
 
 LEGEND_RATIO = 0.1
-MARGIN = 0.05
+MARGIN = 0.1
 XMIN, XMAX, YMIN, YMAX = None, None, None, None
 ALPHA = 0.6
 LEGEND_FONT_SIZE = "medium"
@@ -271,8 +271,6 @@ if __name__ == '__main__':
    ALPHA = args.alpha
    if args.margin:
       MARGIN = args.margin
-   elif LABEL_AXES:
-      MARGIN *= 2
 
    if args.ranges:
       XMIN, XMAX, YMIN, YMAX = args.ranges

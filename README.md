@@ -84,6 +84,6 @@ optional arguments:
   --label_axes          Turn on axes labels.
   --figsize w h         figure width and height in inches; default: 8 6.
   --alpha a             bubble transparency; default: 0.6
-  --margin m            plot margin; default: 0.05.
+  --margin m            plot margin; default: 0.1.
   --output {png,pdf}    format of output file; default: png
 ```
