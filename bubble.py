@@ -18,9 +18,9 @@ LEGEND_FONT_SIZE = "medium"
 LEGEND_TOP_PADDING, LEGEND_LEFT_PADDING = 0, 0
 FIG_SIZE = (8,6)
 LABEL_AXES = False
-
+LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = 3, 1
 X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None, None, None
-Z_transform, Z_transform_label = None, None
+Z_transform, Z_transform_label = None, lambda(x):x
 
 
 ##-------------------------------------------------------------------
@@ -29,7 +29,7 @@ Z_transform, Z_transform_label = None, None
 COLORS = [('#f3c300', 'Vivid Yellow'), ('#875692', 'Strong Purple'), ('#f38400', 'Vivid Orange'), ('#a1caf1', 'Very Light Blue'), ('#be0032', 'Vivid Red'), ('#c2b280', 'Grayish Yellow'), ('#848482', 'Medium Gray'), ('#008856', 'Vivid Green'), ('#e68fac', 'Strong Purplish Pink'), ('#0067a5', 'Strong Blue'), ('#f99379', 'Strong Yellowish Pink'), ('#604e97', 'Strong Violet'), ('#f6a600', 'Vivid Orange Yellow'), ('#b3446c', 'Strong Purplish Red'), ('#dcd300', 'Vivid Greenish Yellow'), ('#882d17', 'Strong Reddish Brown'), ('#27a64c', 'Vivid Yellowish Green'), ('#654522', 'Deep Yellowish Brown'), ('#e25822', 'Vivid Reddish Orange'), ('#2b3d26', 'Dark Olive Green')]
 
 Categories = []
-
+All_Z = []
 ##-------------------------------------------------------------------
 class Subplot:
    def __init__(self, data):
@@ -46,9 +46,11 @@ class Subplot:
       self.x.append(float(r[X_var]))
       self.y.append(float(r[Y_var]))
       if Z_var is not None:
-         self.options['s'].append( float(r[Z_var]) )
+         val = float(r[Z_var])
          if Z_transform is not None:
-            self.options['s'][-1] = Z_transform( self.options['s'][-1] )
+            val = Z_transform(val)
+         self.options['s'].append(val)
+         All_Z.append(val)
 
       if Category_var is not None:
          if r[Category_var] not in Categories:
@@ -111,11 +113,11 @@ def plot(input_file):
    figure = plt.figure(figsize=FIG_SIZE)
 
    # Add plots to figure
-   if not Categories:
-      plot_width = (1.0-2*MARGIN)/cols
-   else:
-      plot_width = (1.0-LEGEND_RATIO-2*MARGIN)/cols
+   plot_width = (1.0-2*MARGIN)/cols
+   if Categories or (Z_var is not None):
+      plot_width -= LEGEND_RATIO/cols
    plot_height = (1.0-2*MARGIN)/rows
+
    for k,group_id in enumerate(subplots):
       plot = subplots[group_id]
       x, y = (k%cols)*plot_width + MARGIN, (k/cols)*plot_height + MARGIN
@@ -153,17 +155,31 @@ def plot(input_file):
       axis.set_ylim(*ylim)
 
    # Build legend
-   if Categories:
+   if Categories or (Z_var is not None):
       x, y = cols*plot_width + MARGIN, MARGIN
       axis = figure.add_axes( [x,y,LEGEND_RATIO,1-2*MARGIN], frameon=False )
       axis.get_xaxis().set_visible(False)
       axis.get_yaxis().set_visible(False)
-      markers, labels = [], []
-      for i, c in enumerate(Categories):
-         color = COLORS[i][0]
-         markers.append(Line2D([],[],marker="o",alpha=ALPHA,linewidth=0,mfc=color,mec=color,ms=10))
-         labels.append(c)
-      figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1, fontsize=LEGEND_FONT_SIZE)
+      if All_Z:
+         All_Z.sort()
+         median_Z = All_Z[len(All_Z)/2]
+         median_Z = int(median_Z) if median_Z > 10 else median_Z
+         axis.set_ylim(0,10)
+         axis.scatter([2],[LEGEND_BUBBLE_Y], s=median_Z, alpha=0.5, c='#786D5F', linewidths=0)
+         axis.text(2,LEGEND_BUBBLE_Y, '%s%s%s' % (Z_transform_label(Z_var),LEGEND_BUBBLE_TABS*'\n',median_Z),
+            size=9,horizontalalignment='center')
+
+      if Categories:
+         markers, labels = [], []
+         for i, c in enumerate(Categories):
+            color = COLORS[i][0]
+            markers.append(Line2D([],[],marker="o",alpha=ALPHA,linewidth=0,mfc=color,mec=color,ms=10))
+            labels.append(c)
+         figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1, fontsize=LEGEND_FONT_SIZE)
+
+
+   # if Z_var is not None:
+   #    figure.suptitle("%s, %s, and %s" % (X_var,Y_var,Z_transform_label(Z_var)), y=1-0.5*MARGIN)
 
    # Save
    t = time.localtime()
@@ -190,10 +206,10 @@ def select_transform(L):
 
    def transform_rep(key, val):
       functions = dict(
-         add = lambda(x): '%s+%s' % (val, x),
-         mul = lambda(x): '%s*(%s)' % (val, x),
-         pow = lambda(x): '(%s)^%s' % (x, val),
-         log = lambda(x): 'log_%s(%s)' % (val, x),
+         add = lambda(x): '%s+%s' % (x, val),
+         mul = lambda(x): '(%s)$\cdot$%s' % (x, val),
+         pow = lambda(x): '(%s)$^{%s}$' % (x, val),
+         log = lambda(x): '$log_{%s}$(%s)' % (val, x),
          exp = lambda(x): '%s^(%s)' % (val, x),
       )
       return functions.get(key)
@@ -227,36 +243,39 @@ if __name__ == '__main__':
    parser.add_argument("-t", nargs=2, metavar=('transform', 'value'), action='append',
       help="transform Z variable.  Transform is one of {add, mul, pow, log, exp}.  Value is a float.")
    parser.add_argument("--ranges", nargs=4, type=float, metavar=('xmin','xmax','ymin','ymax'))
-   parser.add_argument("--legend", type=float, nargs=3,
-      metavar=('p', 'left', 'top'),
+   parser.add_argument("--legend", type=float, nargs=5,
+      metavar=('p', 'left', 'top', 'bubble_y', 'bubble_tabs'),
       help="p: figure portion given to legend; default is 0.1.  \
             left: spacing between plot and legend; default: 0.  \
-            top: spacing between figure top & legend; default: 0.")
+            top: spacing between figure top & legend; default: 0.\
+            bubble_y: vertical placement of bubble; default: 3.\
+            bubble_tabs: default 1.")
    parser.add_argument("--label_axes", default=LABEL_AXES, action="store_true", help="Turn on axes labels.")
    parser.add_argument("--figsize", type=float, nargs=2, metavar=('w', 'h'),
       help='figure width and height in inches; default: %s %s.' % (FIG_SIZE[0], FIG_SIZE[1]))
    parser.add_argument("--alpha", type=float, default=ALPHA, metavar='a',
       help="bubble transparency; default: %s" % ALPHA)
-   parser.add_argument("--margin", type=float, default=MARGIN, metavar='m',
-      help="plot margin; default: %s." % MARGIN)
+   parser.add_argument("--margin", type=float, metavar='m', help="plot margin; default: %s." % MARGIN)
 
    args = parser.parse_args()
    X_var, Y_var, Z_var, Category_var, Group_var, Label_var = args.X, args.Y, args.Z, args.c, args.g, args.l
 
    if args.t:
       Z_transform, Z_transform_label = select_transform(args.t)
-   print Z_transform_label(Z_var)
+
    LABEL_AXES = args.label_axes
    ALPHA = args.alpha
-   if LABEL_AXES:
+   if args.margin:
+      MARGIN = args.margin
+   elif LABEL_AXES:
       MARGIN *= 2
-   MARGIN = args.margin
 
    if args.ranges:
       XMIN, XMAX, YMIN, YMAX = args.ranges
 
    if args.legend:
-      LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING = args.legend
+      LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING, LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = args.legend
+      LEGEND_BUBBLE_TABS = int(LEGEND_BUBBLE_TABS)
 
    if args.figsize:
       FIG_SIZE = args.figsize
