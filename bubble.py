@@ -18,7 +18,7 @@ LEGEND_FONT_SIZE = "medium"
 LEGEND_TOP_PADDING, LEGEND_LEFT_PADDING = 0, 0
 FIG_SIZE = (8,6)
 LABEL_AXES = False
-LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = 3, 1
+LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = 3, 2
 X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None, None, None
 Z_transform, Z_transform_label = None, lambda(x):x
 
@@ -112,16 +112,18 @@ def plot(input_file):
 
    figure = plt.figure(figsize=FIG_SIZE)
 
-   # Add plots to figure
+   # Estimate width and height
    plot_width = (1.0-2*MARGIN)/cols
    if Categories or (Z_var is not None):
       plot_width -= LEGEND_RATIO/cols
    plot_height = (1.0-2*MARGIN)/rows
+   X_OFFSET = 0
 
+   # Add plots to figure
    for k,group_id in enumerate(subplots):
       plot = subplots[group_id]
       x, y = (k%cols)*plot_width + MARGIN, (k/cols)*plot_height + MARGIN
-      axis = figure.add_axes( [x,y,plot_width,plot_height] )
+      axis = figure.add_axes( [x,y,X_OFFSET+plot_width,plot_height] )
       axis.scatter(plot.x, plot.y, **plot.options)
 
       if Label_var is not None:
@@ -157,7 +159,7 @@ def plot(input_file):
    # Build legend
    if Categories or (Z_var is not None):
       x, y = cols*plot_width + MARGIN, MARGIN
-      axis = figure.add_axes( [x,y,LEGEND_RATIO,1-2*MARGIN], frameon=False )
+      axis = figure.add_axes( [X_OFFSET+x,y,LEGEND_RATIO,1-2*MARGIN], frameon=False )
       axis.get_xaxis().set_visible(False)
       axis.get_yaxis().set_visible(False)
       if All_Z:
@@ -243,13 +245,13 @@ if __name__ == '__main__':
    parser.add_argument("-t", nargs=2, metavar=('transform', 'value'), action='append',
       help="transform Z variable.  Transform is one of {add, mul, pow, log, exp}.  Value is a float.")
    parser.add_argument("--ranges", nargs=4, type=float, metavar=('xmin','xmax','ymin','ymax'))
-   parser.add_argument("--legend", type=float, nargs=5,
-      metavar=('p', 'left', 'top', 'bubble_y', 'bubble_tabs'),
+   parser.add_argument("--legend", type=float, nargs=3, metavar=('p', 'left', 'top'),
       help="p: figure portion given to legend; default is 0.1.  \
             left: spacing between plot and legend; default: 0.  \
-            top: spacing between figure top & legend; default: 0.\
-            bubble_y: vertical placement of bubble; default: 3.\
-            bubble_tabs: default 1.")
+            top: spacing between figure top & legend; default: 0.")
+   parser.add_argument("--legend_bubble", type=float, nargs=2, metavar=('y', 'spacing'),
+      help="y: position of vertical placement of bubble. Default: 3.\
+            spacing: number of lines between annotations.")
    parser.add_argument("--label_axes", default=LABEL_AXES, action="store_true", help="Turn on axes labels.")
    parser.add_argument("--figsize", type=float, nargs=2, metavar=('w', 'h'),
       help='figure width and height in inches; default: %s %s.' % (FIG_SIZE[0], FIG_SIZE[1]))
@@ -274,8 +276,11 @@ if __name__ == '__main__':
       XMIN, XMAX, YMIN, YMAX = args.ranges
 
    if args.legend:
-      LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING, LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = args.legend
-      LEGEND_BUBBLE_TABS = int(LEGEND_BUBBLE_TABS)
+      LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING = args.legend
+
+   if args.legend_bubble:
+      LEGEND_BUBBLE_Y = args.legend_bubble[0]
+      LEGEND_BUBBLE_TABS = int(args.legend_bubble[1])
 
    if args.figsize:
       FIG_SIZE = args.figsize
