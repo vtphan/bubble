@@ -28,7 +28,7 @@ Require Python packages:
 ============================================================================
 
 #### Usage
-
+```
 usage: bubble.py [-h] [-c Category] [-g Group] [-l Label] [-t transform value]
                  [--ranges xmin xmax ymin ymax] [--legend p left top]
                  [--legend_bubble y spacing] [--label_axes] [--figsize w h]
@@ -63,3 +63,4 @@ optional arguments:
   --figsize w h         figure width and height in inches; default: 8 6.
   --alpha a             bubble transparency; default: 0.6
   --margin m            plot margin; default: 0.05.
+```
