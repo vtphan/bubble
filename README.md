@@ -112,3 +112,9 @@ Transformation must be done with care to ensure that the plot is not just pretty
 If the plot is too crowded, you can simply resize (with option --figsize or --ranges) instead of 
 transforming the Z variable.
 
+Transformation is chainable.  For example, to transform values x of Z to  3.14*x^2, simply use
+option -t as follows:
+
+```
+	-t pow 2 -t mul 3.14
+```
