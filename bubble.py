@@ -22,6 +22,7 @@ X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None
 Z_transform, Z_transform_label = None, lambda(x):x
 
 OUTPUT_FORMAT = 'png'
+INPUT_SEPARATOR = ','
 
 ##-------------------------------------------------------------------
 ## 21 out of Kelly's 22 colours of maximum mutual contrast
@@ -112,7 +113,7 @@ def check_for_column_names(data):
 
 ##-------------------------------------------------------------------
 def plot(input_file):
-   data = tsv.Read(input_file, ",")
+   data = tsv.Read(input_file, INPUT_SEPARATOR)
    check_for_column_names(data)
 
    # Read in data
@@ -282,6 +283,7 @@ if __name__ == '__main__':
    parser.add_argument("--margin", type=float, metavar='m', help="plot margin; default: %s." % MARGIN)
    parser.add_argument("--output", choices=["png","pdf"], default=OUTPUT_FORMAT,
       help="format of output file; default: %s" % OUTPUT_FORMAT, )
+   parser.add_argument("--input_sep", default=',', choices=[',','\t'], help=", or \\t")
    args = parser.parse_args()
    X_var, Y_var, Z_var, Category_var, Group_var, Label_var = args.X, args.Y, args.Z, args.c, args.g, args.l
    if Label_var:
@@ -309,6 +311,7 @@ if __name__ == '__main__':
       FIG_SIZE = args.figsize
 
    OUTPUT_FORMAT = args.output
+   INPUT_SEPARATOR = args.input_sep
 
    plot( args.input_file )
 

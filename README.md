@@ -86,6 +86,7 @@ optional arguments:
   --alpha a             bubble transparency; default: 0.6
   --margin m            plot margin; default: 0.1.
   --output {png,pdf}    format of output file; default: png
+  --input_sep {,,	}     , or \t
 ```
 
 ============================================================================
