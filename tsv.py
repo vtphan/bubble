@@ -28,7 +28,7 @@ class Row:
    def set(self, line):
       self.r = line.split(self.token)
       if len(self.r) != self.columns:
-         print "Error: column mismatch (%d != %d)" % (self.columns, len(self.r))
+         print "Error: column mismatch (%d != %d): %s" % (self.columns, len(self.r), self.r)
       # Certain columns might duplicate.
       # if len(self.r) != len(self.fields):
       #    print "Error:\n",self.r,"\n",self.fields
