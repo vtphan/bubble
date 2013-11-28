@@ -87,3 +87,28 @@ optional arguments:
   --margin m            plot margin; default: 0.1.
   --output {png,pdf}    format of output file; default: png
 ```
+
+============================================================================
+
+#### Transformation of Z variable
+
+Values of the Z variable (column) are equated to the areas of circles.  It is
+sometimes desirable to transform the Z variable.  You need to specify that "-t" flag:
+
+```
+	-t transform value
+```
+
+Given a value v, each data point x of the Z variable is transformed based on the 
+specified transformation as follows:
+
+- add: x+v
+- mul: x*v
+- pow: x^v
+- log: log_v (x)
+- exp: v^x
+
+Transformation must be done with care to ensure that the plot is not just pretty but also meaningful.
+If the plot is too crowded, you can simply resize (with option --figsize or --ranges) instead of 
+transforming the Z variable.
+
