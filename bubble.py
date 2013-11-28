@@ -24,8 +24,31 @@ Z_transform, Z_transform_label = None, lambda(x):x
 OUTPUT_FORMAT = 'png'
 
 ##-------------------------------------------------------------------
-# 20 of Kelly’s 22 colours of maximum contrast
-COLORS = [('#f3c300', 'Vivid Yellow',1), ('#875692', 'Strong Purple',2), ('#f38400', 'Vivid Orange',3), ('#a1caf1', 'Very Light Blue',4), ('#be0032', 'Vivid Red',5), ('#c2b280', 'Grayish Yellow',6), ('#848482', 'Medium Gray',7), ('#008856', 'Vivid Green',8), ('#e68fac', 'Strong Purplish Pink',9), ('#0067a5', 'Strong Blue',10), ('#f99379', 'Strong Yellowish Pink',11), ('#604e97', 'Strong Violet',12), ('#f6a600', 'Vivid Orange Yellow',13), ('#b3446c', 'Strong Purplish Red',14), ('#dcd300', 'Vivid Greenish Yellow',15), ('#882d17', 'Strong Reddish Brown',16), ('#27a64c', 'Vivid Yellowish Green',17), ('#654522', 'Deep Yellowish Brown',18), ('#e25822', 'Vivid Reddish Orange',19), ('#2b3d26', 'Dark Olive Green',20)]
+## 21 out of Kelly's 22 colours of maximum mutual contrast
+COLORS = [
+   # ('#101010', 'Light Black',0),
+   ('#848482', 'Medium Gray',7),
+   ('#f3c300', 'Vivid Yellow',1),
+   ('#875692', 'Strong Purple',2),
+   ('#f38400', 'Vivid Orange',3),
+   ('#a1caf1', 'Very Light Blue',4),
+   ('#be0032', 'Vivid Red',5),
+   ('#c2b280', 'Grayish Yellow',6),
+   ('#848482', 'Medium Gray',7),
+   ('#008856', 'Vivid Green',8),
+   ('#e68fac', 'Strong Purplish Pink',9),
+   ('#0067a5', 'Strong Blue',10),
+   ('#f99379', 'Strong Yellowish Pink',11),
+   ('#604e97', 'Strong Violet',12),
+   ('#f6a600', 'Vivid Orange Yellow',13),
+   ('#b3446c', 'Strong Purplish Red',14),
+   ('#dcd300', 'Vivid Greenish Yellow',15),
+   ('#882d17', 'Strong Reddish Brown',16),
+   ('#27a64c', 'Vivid Yellowish Green',17),
+   ('#654522', 'Deep Yellowish Brown',18),
+   ('#e25822', 'Vivid Reddish Orange',19),
+   ('#2b3d26', 'Dark Olive Green',20),
+]
 
 Categories = []
 All_Z = []
