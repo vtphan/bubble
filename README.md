@@ -22,13 +22,13 @@ Require Python packages:
 ```
 <img src="output/ex2.png">
 
-+ Readjust x/y ranges; turn on x/y labels
++ Adjust x/y ranges; turn on x/y labels
 ```
 	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes
 ```
 <img src="output/ex3.png">
 
-+ Add politics as a category.  Readjust legend.
++ Add politics as a category.  Adjust legend.
 ```
 python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300 --label_axes -c politics --legend_bubble 5 2 --legend 0.2 0 0
 ```
