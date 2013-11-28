@@ -26,8 +26,7 @@ OUTPUT_FORMAT = 'png'
 ##-------------------------------------------------------------------
 ## 21 out of Kelly's 22 colours of maximum mutual contrast
 COLORS = [
-   # ('#101010', 'Light Black',0),
-   ('#848482', 'Medium Gray',7),
+   ('#101010', 'Light Black',0),
    ('#f3c300', 'Vivid Yellow',1),
    ('#875692', 'Strong Purple',2),
    ('#f38400', 'Vivid Orange',3),
@@ -285,6 +284,8 @@ if __name__ == '__main__':
       help="format of output file; default: %s" % OUTPUT_FORMAT, )
    args = parser.parse_args()
    X_var, Y_var, Z_var, Category_var, Group_var, Label_var = args.X, args.Y, args.Z, args.c, args.g, args.l
+   if Label_var:
+      COLORS[0] = COLORS.pop(18)
 
    if args.t:
       Z_transform, Z_transform_label = select_transform(args.t)
