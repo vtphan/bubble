@@ -52,9 +52,10 @@ python bubble.py crimeRatesByState2005.csv murder burglary population --ranges 0
 #### Usage
 ```
 usage: bubble.py [-h] [-c Category] [-g Group] [-l Label] [-t transform value]
-                 [--ranges xmin xmax ymin ymax] [--legend p left top]
-                 [--legend_bubble y spacing] [--label_axes] [--figsize w h]
-                 [--alpha a] [--margin m] [--output {png,pdf}]
+                 [--ranges xmin xmax ymin ymax] [--inc xinc yinc]
+                 [--legend p left top] [--legend_bubble y spacing]
+                 [--label_axes] [--scaled] [--figsize w h] [--alpha a]
+                 [--margin m] [--output {png,pdf}] [--input_sep {,,	}]
                  data.csv X Y [Z]
 
 Names of X, Y, Z, Category, Group, and Label must match with information
@@ -75,13 +76,15 @@ optional arguments:
   -t transform value    transform Z variable. Transform is one of {add, mul,
                         pow, log, exp}. Value is a float.
   --ranges xmin xmax ymin ymax
+  --inc xinc yinc
   --legend p left top   p: figure portion given to legend; default is 0.1.
                         left: spacing between plot and legend; default: 0.
                         top: spacing between figure top & legend; default: 0.
   --legend_bubble y spacing
-                        y: position of vertical placement of bubble. Default:
-                        3. spacing: number of lines between annotations.
+                        y: position of vertical bubble placement; default: 3.
+                        spacing: no. of lines between annotations; default: 2.
   --label_axes          Turn on axes labels.
+  --scaled              scaled x and y axes
   --figsize w h         figure width and height in inches; default: 8 6.
   --alpha a             bubble transparency; default: 0.6
   --margin m            plot margin; default: 0.1.

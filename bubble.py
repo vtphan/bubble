@@ -12,11 +12,13 @@ import time
 LEGEND_RATIO = 0.1
 MARGIN = 0.1
 XMIN, XMAX, YMIN, YMAX = None, None, None, None
+XINC, YINC = None, None
+SCALED = None
 ALPHA = 0.6
 LEGEND_FONT_SIZE = "medium"
 LEGEND_TOP_PADDING, LEGEND_LEFT_PADDING = 0, 0
 FIG_SIZE = (8,6)
-LABEL_AXES = False
+LABEL_AXES = True
 LEGEND_BUBBLE_Y, LEGEND_BUBBLE_TABS = 3, 2
 X_var, Y_var, Z_var, Category_var, Group_var, Label_var = None, None, None, None, None, None
 Z_transform, Z_transform_label = None, lambda(x):x
@@ -27,7 +29,7 @@ INPUT_SEPARATOR = ','
 ##-------------------------------------------------------------------
 ## 21 out of Kelly's 22 colours of maximum mutual contrast
 COLORS = [
-   ('#101010', 'Light Black',0),
+   ('#131313', 'Black',0),
    ('#f3c300', 'Vivid Yellow',1),
    ('#875692', 'Strong Purple',2),
    ('#f38400', 'Vivid Orange',3),
@@ -177,6 +179,12 @@ def plot(input_file):
 
       axis.set_xlim(*xlim)
       axis.set_ylim(*ylim)
+      if XINC is not None and YINC is not None:
+         axis.set_xticks(np.arange(xlim[0]/XINC, (xlim[1] + 1)/XINC) * XINC)
+         axis.set_yticks(np.arange(ylim[0]/YINC, (ylim[1] + 1)/YINC) * YINC)
+         axis.grid(True)
+      if SCALED:
+         axis.axis('scaled')
 
    # Build legend
    if Categories or (Z_var is not None):
@@ -199,7 +207,8 @@ def plot(input_file):
             color = COLORS[i][0]
             markers.append(plt.Line2D([],[],marker="o",alpha=ALPHA,linewidth=0,mfc=color,mec=color,ms=10))
             labels.append(c)
-         figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1, fontsize=LEGEND_FONT_SIZE)
+         figure.axes[-1].legend(markers, labels, loc="upper left", bbox_to_anchor=(0+LEGEND_LEFT_PADDING,1+LEGEND_TOP_PADDING), numpoints=1)
+         figure.axes[-1].legend(prop={'fontsize': LEGEND_FONT_SIZE})
 
 
    # if Z_var is not None:
@@ -211,6 +220,7 @@ def plot(input_file):
       (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, OUTPUT_FORMAT)
    print "Save output to %s" % output
    plt.savefig(output)
+   print "Showing plot..."
    plt.show()
 
 ##----------------------------------------------------------------------------
@@ -268,6 +278,7 @@ if __name__ == '__main__':
    parser.add_argument("-t", nargs=2, metavar=('transform', 'value'), action='append',
       help="transform Z variable.  Transform is one of {add, mul, pow, log, exp}.  Value is a float.")
    parser.add_argument("--ranges", nargs=4, type=float, metavar=('xmin','xmax','ymin','ymax'))
+   parser.add_argument("--inc", nargs=2, type=float, metavar=('xinc','yinc'))
    parser.add_argument("--legend", type=float, nargs=3, metavar=('p', 'left', 'top'),
       help="p: figure portion given to legend; default is 0.1.  \
             left: spacing between plot and legend; default: 0.  \
@@ -276,6 +287,7 @@ if __name__ == '__main__':
       help="y: position of vertical bubble placement; default: 3.  \
             spacing: no. of lines between annotations; default: 2.")
    parser.add_argument("--label_axes", default=LABEL_AXES, action="store_true", help="Turn on axes labels.")
+   parser.add_argument('--scaled', help='scaled x and y axes', action='store_true')
    parser.add_argument("--figsize", type=float, nargs=2, metavar=('w', 'h'),
       help='figure width and height in inches; default: %s %s.' % (FIG_SIZE[0], FIG_SIZE[1]))
    parser.add_argument("--alpha", type=float, default=ALPHA, metavar='a',
@@ -299,6 +311,10 @@ if __name__ == '__main__':
 
    if args.ranges:
       XMIN, XMAX, YMIN, YMAX = args.ranges
+
+   if args.inc:
+      XINC, YINC = args.inc
+   SCALED = args.scaled
 
    if args.legend:
       LEGEND_RATIO, LEGEND_LEFT_PADDING, LEGEND_TOP_PADDING = args.legend
