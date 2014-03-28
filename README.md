@@ -22,7 +22,7 @@ Require Python packages:
 ```
 <img src="output/ex2.png">
 
-+ Adjust x/y ranges; turn on x/y labels
++ Adjust x/y ranges.
 ```
 	python bubble.py crimeRatesByState2005.csv murder burglary population -t mul .0001 --ranges 0 12 200 1300
 ```
